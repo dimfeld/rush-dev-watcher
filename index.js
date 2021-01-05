@@ -15,10 +15,8 @@ const args = yargs
   .boolean('just-deps')
   .help().argv;
 
-const aliases = {
-  dg: 'demandgeneration',
-  demandgen: 'demandgeneration',
-};
+// Put package aliases here if you want.
+const aliases = {};
 
 function transformer(prefix) {
   let emitter = new EventEmitter();
