@@ -14,10 +14,11 @@
   },
   "dependencies": {
     "execa": "~4.1.0",
-    "@microsoft/rush-lib": "~5.35.2",
+    "@microsoft/rush-lib": "~5.47.0",
     "just-index": "~2.1.0",
     "dag-map": "~2.0.2",
     "chalk": "~4.1.0",
-    "yargs": "~16.0.3"
+    "yargs": "~16.0.3",
+    "terminate": "2.2.0"
   }
 }
