@@ -1,4 +1,23 @@
 #!/usr/bin/env node
+
+const terminate = require('terminate');
+let childProcesses  = []
+var cleanExit = function(code) {
+  console.log('killing', childProcesses.length, 'child processes');
+  childProcesses.forEach(function(child) {
+    terminate(child.pid, 'SIGINT', { timeout: 1000 }, () => {
+      terminate(child.pid);
+      childProcesses = childProcesses.filter(c => c != child);
+      if (childProcesses.length == 0)
+      {
+        process.exit(code ?? 0)
+      }
+    });
+  });
+};
+process.on('SIGINT', cleanExit); // catch ctrl-c
+process.on('SIGTERM', cleanExit); // catch kill
+
 const rushLib = require('@microsoft/rush-lib');
 const execa = require('execa');
 const path = require('path');
@@ -29,7 +48,11 @@ function transformer(prefix) {
         // Webpack finished
         chunk.includes('Built at:') ||
         // API
-        chunk.includes('[nodemon]')
+        chunk.includes('[nodemon]') ||
+        // Storybook watcher
+        chunk.includes('On your network:') ||
+        // Rollup
+        chunk.includes('created dist in')
       ) {
         emitter.emit('initial-build-done');
       }
@@ -76,6 +99,8 @@ async function startBuilding(project) {
   let pr = execa('rushx', args, {
     cwd: project.projectFolder,
   });
+
+  childProcesses.push(pr)
 
   let { emitter, transform } = transformer(project.packageName);
 
@@ -152,5 +177,5 @@ async function run() {
 
 run().catch((e) => {
   console.error(e);
-  process.exit(1);
+  cleanExit(1)
 });
